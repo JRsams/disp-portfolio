@@ -10,9 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CamundaApplication {
 
   public static void main(String... args) throws SQLException {
-    //SpringApplication.run(CamundaApplication.class, args);
-    Database stockData = new Database("localhost:3306","stock","camundabpm","disp20", null);
-    stockData.openConnection();   
+    SpringApplication.run(CamundaApplication.class, args);
   }
 
 }

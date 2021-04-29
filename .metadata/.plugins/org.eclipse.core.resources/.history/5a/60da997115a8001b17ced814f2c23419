@@ -1,0 +1,20 @@
+package stockBPM.stockManager;
+
+public class orderItem extends stockItem{
+	private int orderQuantity;
+	
+	public orderItem() {}
+
+	public orderItem(String name, int orderQuantity) {
+		this.orderQuantity = orderQuantity;
+	}
+
+	public int getOrderQuantity() {
+		return this.orderQuantity;
+	}
+
+	public void setOrderQuantity(int orderQuantity) {
+		this.orderQuantity = orderQuantity;
+	}
+
+}

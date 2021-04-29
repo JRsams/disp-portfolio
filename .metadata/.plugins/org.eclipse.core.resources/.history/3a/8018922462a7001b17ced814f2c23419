@@ -1,0 +1,7 @@
+package stockBPM.stockManager;
+
+public class stockItem {
+	private String name;
+	private double price;
+
+}

@@ -126,11 +126,21 @@
  	  <artifactId>mysql-connector-java</artifactId>
     </dependency>
     
+    <!-- custom connect  -->
     <dependency>
-      <groupId>org.javatuples</groupId>
-      <artifactId>javatuples</artifactId>
-      <version>1.2</version>
-	</dependency>
+    <groupId>org.camunda.bpm</groupId>
+    <artifactId>camunda-engine-plugin-connect</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.camunda.connect</groupId>
+    <artifactId>camunda-connect-http-client</artifactId>
+  </dependency>
+
+  <dependency>
+    <groupId>org.camunda.spin</groupId>
+    <artifactId>camunda-spin-dataformat-json-jackson</artifactId>
+  </dependency>     
   </dependencies>
   
 

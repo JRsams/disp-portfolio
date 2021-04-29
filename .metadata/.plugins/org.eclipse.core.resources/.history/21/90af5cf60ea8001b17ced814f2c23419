@@ -1,0 +1,16 @@
+package stockBPM.stockManager;
+
+public class itemOrder extends stockItem{
+private String name;
+private double price;
+private int orderQuantity;
+
+public itemOrder() {}
+	
+	public itemOrder(String name, double price, int quantity) {
+		super();
+		this.name = name;
+		this.price = price;
+		this.orderQuantity = quantity;
+	}
+}

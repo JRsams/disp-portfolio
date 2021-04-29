@@ -1,0 +1,5 @@
+package stockBPM.stockManager;
+
+public class stockItem {
+
+}

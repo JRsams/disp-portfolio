@@ -1,0 +1,46 @@
+<h3>Embedded Forms Quickstart</h3>
+<form role="form"
+      name="variablesForm">
+
+<div class="row">
+
+  <div class="col-xs-6">
+    <h2>Loan Data</h2>
+
+    <!-- Loan Type -->
+    <div class="form-group">
+      <label for="selectLoanType">Type of the loan</label>
+      <div class="controls">
+        <!--select box -->
+        <select required
+           class="form-control"
+           name="loanType"
+           cam-variable-name="loanType"
+           cam-variable-type="String"
+           ng-change="calculateLoan()">
+          <option value="mortage" checked>Mortage Loan (5%)</option>
+          <option value="cashAdvance">Cash Advance (10%)</option>
+        </select>
+      </div> 
+  </div>
+
+  <div class="col-xs-6">
+    <h2>Contact Data</h2>
+
+    <!-- Gender -->
+    <div class="form-group">
+      <label for="gender">Gender</label>
+      <div class="controls">
+
+        <!--select box -->
+        <select class="form-control"
+           cam-variable-name="gender"
+           cam-variable-type="String"
+           ng-change="calculateLoan()">
+          <option value="m" checked>Mr.</option>
+          <option value="f">Mrs.</option>
+        </select>
+  </div>
+
+</div>
+</form>

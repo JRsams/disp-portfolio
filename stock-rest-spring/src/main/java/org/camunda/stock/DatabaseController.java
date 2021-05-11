@@ -37,11 +37,8 @@ public class DatabaseController {
 			//Create a connection to the database
 
 			String url = "jdbc:mysql://" + serverName +  "/" + schema;
-			System.out.println(url);
+			
 			connection = DriverManager.getConnection(url, username, password);
-
-
-			System.out.println("Successfully Connected to the database!");
 			return connection;
 
 

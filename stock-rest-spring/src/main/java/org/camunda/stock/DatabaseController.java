@@ -31,7 +31,7 @@ public class DatabaseController {
 
 	}
 
-	public void openConnection() {
+	public Connection openConnection() {
 		try {
 
 			//Create a connection to the database
@@ -42,12 +42,15 @@ public class DatabaseController {
 
 
 			System.out.println("Successfully Connected to the database!");
+			return connection;
 
 
 		} catch (SQLException e) {
 
 			System.out.println("Could not connect to the database " + e.getMessage());
+			return null;
 		}
+		
 	}
 
 	public void closeConnection() throws SQLException {

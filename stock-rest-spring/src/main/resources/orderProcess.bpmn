@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" id="Definitions_06fh6ii" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.4.0">
   <bpmn:process id="orderProcess" name="orderProcess" isExecutable="true">
-    <bpmn:endEvent id="EndedEndEvent" name="Ended">
-      <bpmn:incoming>Flow_0c4finr</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:startEvent id="StartedStartEvent" name="Started">
+    <bpmn:startEvent id="StartedStartEvent" name="New order">
       <bpmn:outgoing>Flow_10zc93f</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_10zc93f" sourceRef="StartedStartEvent" targetRef="EnterOrderTask" />
     <bpmn:sequenceFlow id="Flow_04ixq65" sourceRef="EnterOrderTask" targetRef="CallRESTServiceTask" />
     <bpmn:sequenceFlow id="Flow_0yz14pn" sourceRef="CallRESTServiceTask" targetRef="CheckResultTask" />
-    <bpmn:serviceTask id="CallRESTServiceTask" name="Call REST Service" camunda:delegateExpression="${restDelegate}">
+    <bpmn:serviceTask id="CallRESTServiceTask" name="Check item stock" camunda:delegateExpression="${restDelegate}">
       <bpmn:incoming>Flow_04ixq65</bpmn:incoming>
       <bpmn:outgoing>Flow_0yz14pn</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -33,6 +30,9 @@
       <bpmn:incoming>Flow_0yz14pn</bpmn:incoming>
       <bpmn:outgoing>Flow_0c4finr</bpmn:outgoing>
     </bpmn:userTask>
+    <bpmn:endEvent id="EndedEndEvent" name="Order complete">
+      <bpmn:incoming>Flow_0c4finr</bpmn:incoming>
+    </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0c4finr" sourceRef="CheckResultTask" targetRef="EndedEndEvent" />
   </bpmn:process>
   <bpmn:message id="Message_0bj6qjp" name="Message_orderReceived" />
@@ -55,16 +55,10 @@
         <di:waypoint x="188" y="130" />
         <di:waypoint x="260" y="130" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Event_13nxum6_di" bpmnElement="EndedEndEvent">
-        <dc:Bounds x="742" y="112" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="744" y="155" width="32" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0evdtau_di" bpmnElement="StartedStartEvent">
         <dc:Bounds x="152" y="112" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="152" y="155" width="36" height="14" />
+          <dc:Bounds x="145" y="155" width="51" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0o6x31i_di" bpmnElement="CallRESTServiceTask">
@@ -75,6 +69,12 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_06tim8t_di" bpmnElement="CheckResultTask">
         <dc:Bounds x="580" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_13nxum6_di" bpmnElement="EndedEndEvent">
+        <dc:Bounds x="742" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="722" y="155" width="76" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

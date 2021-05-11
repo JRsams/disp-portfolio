@@ -28,22 +28,10 @@ public class RestDelegate implements JavaDelegate {
         int quantity = (((Long) execution.getVariable("quantity")).intValue());
         
         orderItem item = new orderItem(name, quantity);
-        //((Long) userService.getAttendanceList(currentUser)).intValue();
 
         //call REST service to attempt order
         String response = (restTemplate.postForObject("http://localhost:8080/stock/order", item ,String.class));
         System.out.println(response);
         execution.setVariable("orderResponse", response);
-
-//        //access object in Java, store a new process variable
- //       if (response != null) execution.setVariable("email", response);
-//
-//        //serialize a java object into JSON and stored it in this way so Camunda knows it is JSON
-//        ObjectValue adJson = Variables
-//                .objectValue(response.getAd())
-//                .serializationDataFormat(Variables.SerializationDataFormats.JSON)
-//                .create();
-//        //add json object value as process variable
-//        execution.setVariable("Ad", adJson);
     }
 }

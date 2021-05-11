@@ -23,7 +23,6 @@ public class RestDelegate implements JavaDelegate {
         int quantity = (((Long) execution.getVariable("quantity")).intValue());
         
         orderItem item = new orderItem(name, quantity);
-        //((Long) userService.getAttendanceList(currentUser)).intValue();
 
         //call REST service to attempt order
         Response response = (restTemplate.postForObject("http://localhost:8080/stock/order", item , Response.class));

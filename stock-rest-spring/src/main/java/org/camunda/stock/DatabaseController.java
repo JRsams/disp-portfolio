@@ -31,23 +31,23 @@ public class DatabaseController {
 
 	}
 
-	public void openConnection() {
+	public Connection openConnection() {
 		try {
 
 			//Create a connection to the database
 
 			String url = "jdbc:mysql://" + serverName +  "/" + schema;
-			System.out.println(url);
+			
 			connection = DriverManager.getConnection(url, username, password);
-
-
-			System.out.println("Successfully Connected to the database!");
+			return connection;
 
 
 		} catch (SQLException e) {
 
 			System.out.println("Could not connect to the database " + e.getMessage());
+			return null;
 		}
+		
 	}
 
 	public void closeConnection() throws SQLException {
@@ -79,38 +79,54 @@ public class DatabaseController {
 		return resultList;
 	}
 		
-	public String restock (String itemName, Integer quantity) throws SQLException {
+	public Response restock (String itemName, Integer quantity) throws SQLException {
+		Response response = new Response();
+		response.setMessage("Order quantity error: Quantity " + quantity + " must be greater than 0");
 		if (quantity < 1) {
-			return "Order quantity error: Quantity " + quantity + "must be greater than 0";
+			return response;
 		}
 		PreparedStatement updt = connection.prepareStatement("update fish set quantity = quantity + ? where name = ?");
 		updt.setInt(1, quantity);
 		updt.setString(2, itemName);
 		updt.executeUpdate();
-		return quantity + " new stock ordered for " + itemName;
+		response.setMessage(quantity + " new stock ordered for " + itemName);
+		return response;
 	}
 		
-	public Object newOrder (orderItem order) throws SQLException {
+	public Response newOrder (orderItem order) throws SQLException {
+		Response response = new Response();
 		if (order.getOrderQuantity() < 1) {
-			return "Order quantity error: Quantity must be at least 1";
+			response.setMessage("Order quantity error: Quantity must be at least 1");
+			response.setResult("error");
+			return response;
 		}
 		PreparedStatement query = connection.prepareStatement("select quantity from fish where name = ?");
 		query.setString(1, order.getName());
 		ResultSet rs = query.executeQuery();
-		if (!rs.isBeforeFirst()) return "Order name error: No item found with name " + order.getName();
+		if (!rs.isBeforeFirst()) {
+			response.setMessage("Order name error: No item found with name " + order.getName());
+			response.setResult("error");
+			return response;
+		}
 		rs.next();
 		int currentQuantity = rs.getInt(1);
 		if (currentQuantity < 1) {
-			return order.getName() + " is out of stock.";
+			response.setMessage(order.getName() + " is out of stock.");
+			response.setResult("failure");
+			return response;
 		}
 		if (order.getOrderQuantity() > currentQuantity) {
-			return "Order size error: Stock order of " + order.getOrderQuantity() + " exceeds stock level for " + order.getName() + " (" + currentQuantity +")";
+			response.setMessage("Order size error: Stock order of " + order.getOrderQuantity() + " exceeds stock level for " + order.getName() + " (" + currentQuantity +")");
+			response.setResult("error");
+			return response;
 		}
 		PreparedStatement updt = connection.prepareStatement("update fish set quantity = quantity - ? where name = ?");
 		updt.setInt(1, order.getOrderQuantity());
 		updt.setString(2, order.getName());
 		updt.executeUpdate();
-		return "New Order for " + order.getOrderQuantity() + " x " + order.getName();
+		response.setMessage("New Order for " + order.getOrderQuantity() + " x " + order.getName());
+		response.setResult("succsess");
+		return response;
 		
 	}
 	public int getStockQuantitiy(stockItem item) {

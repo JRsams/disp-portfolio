@@ -1,15 +1,10 @@
 package org.camunda.stock;
 
-import java.util.ArrayList;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
-import org.camunda.bpm.engine.variable.Variables;
-import org.camunda.bpm.engine.variable.value.ObjectValue;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
-
-import net.minidev.json.JSONObject;
 
 @Service
 public class RestDelegate implements JavaDelegate {
@@ -20,7 +15,7 @@ public class RestDelegate implements JavaDelegate {
         this.restTemplate = builder.build();
     }
 
-    @Override
+	@Override
     public void execute(DelegateExecution execution) throws Exception {
 
         //access process variable
@@ -30,8 +25,10 @@ public class RestDelegate implements JavaDelegate {
         orderItem item = new orderItem(name, quantity);
 
         //call REST service to attempt order
-        String response = (restTemplate.postForObject("http://localhost:8080/stock/order", item ,String.class));
-        System.out.println(response);
-        execution.setVariable("orderResponse", response);
-    }
+        Response response = (restTemplate.postForObject("http://localhost:8080/stock/order", item , Response.class));
+        
+        //set response variables
+        execution.setVariable("orderMessage", response.getMessage());
+        execution.setVariable("orderResult", response.getResult());
+	}
 }

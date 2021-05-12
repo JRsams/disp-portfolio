@@ -32,8 +32,6 @@ public class TestOrderOutcome {
 		
 		assertThat(processInstance).isStarted();
 		assertThat(processInstance).isWaitingAt("orderSuccess");
-		complete(task(processInstance));
-		assertThat(processInstance).isEnded();
 	}
 	
 	@Test

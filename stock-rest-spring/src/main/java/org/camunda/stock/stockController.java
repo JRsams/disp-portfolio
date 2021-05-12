@@ -25,12 +25,12 @@ public class stockController {
 	}
 
 	@PostMapping(value = "restock", consumes = "application/json")
-	public Response restockItem (@RequestBody orderItem item) throws SQLException {
+	public Response restockItem (@RequestBody Order item) throws SQLException {
 		return stockData.restock(item); 
 	}
 
 	@PostMapping(value = "order", consumes = "application/json")
-	public Response newOrder (@RequestBody orderItem order) throws SQLException {
+	public Response newOrder (@RequestBody Order order) throws SQLException {
 		return stockData.newOrder(order);
 	}
 	

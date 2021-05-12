@@ -22,7 +22,7 @@ public class RestockDelegate implements JavaDelegate {
         String name = execution.getVariable("item").toString();
         int quantity = (((Long) execution.getVariable("quantity")).intValue());
         
-        orderItem item = new orderItem(name, quantity);
+        Order item = new Order(name, quantity);
 
         //call REST service to attempt order
         Response response = (restTemplate.postForObject("http://localhost:8080/stock/restock", item , Response.class));

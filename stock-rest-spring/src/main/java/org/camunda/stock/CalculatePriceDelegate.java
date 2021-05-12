@@ -24,7 +24,7 @@ public class CalculatePriceDelegate implements JavaDelegate {
 		String name = execution.getVariable("item").toString();
 		int quantity = (((Long) execution.getVariable("quantity")).intValue());
 
-		orderItem item = new orderItem(name, quantity);
+		Order item = new Order(name, quantity);
 
 		//call REST service to attempt order
 		Response response = (restTemplate.postForObject("http://localhost:8080/stock/price", item , Response.class));
@@ -35,7 +35,7 @@ public class CalculatePriceDelegate implements JavaDelegate {
 		//Convert to BigDecimal
 		BigDecimal decimalPrice = new BigDecimal(price);
 		//calculate price multiplied by quantity
-		BigDecimal calculateOrder = decimalPrice.multiply(new BigDecimal(item.getOrderQuantity())); 
+		BigDecimal calculateOrder = decimalPrice.multiply(new BigDecimal(item.getQuantity())); 
 		//Convert back to String and add currency symbol
 		String finalPrice = "£" + calculateOrder.toString();
         //set response variables

@@ -36,36 +36,66 @@ public class TestOrderOutcome {
 		assertThat(processInstance).isEnded();
 	}
 	
-//	@Test
-//	@Deployment(resources = {"orderProcess.bpmn"})
-//	public void orderFailure (){
-//		
-//		Map<String, Object> variables = new HashMap<String, Object>();
-//		variables.put("orderResult", "failure");
-//		// Given we create a new process instance
-//		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
-//				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
-//		
-//		assertThat(processInstance).isStarted();
-//		assertThat(processInstance).isWaitingAt("outOfStock");
-//		complete(task(processInstance));
-//		assertThat(processInstance).isEnded();
-//	}
-//	
-//	@Test
-//	@Deployment(resources = {"orderProcess.bpmn"})
-//	public void orderError (){
-//		
-//		Map<String, Object> variables = new HashMap<String, Object>();
-//		variables.put("orderResult", "error");
-//		// Given we create a new process instance
-//		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
-//				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
-//		
-//		assertThat(processInstance).isStarted();
-//		assertThat(processInstance).isWaitingAt("orderError");
-//		complete(task(processInstance));
-//		assertThat(processInstance).isEnded();
-//	}
+	@Test
+	@Deployment(resources = {"orderProcess.bpmn"})
+	public void orderFailureEnd (){
+		
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put("orderResult", "failure");
+		variables.put("shouldRestock", false);
+		// Given we create a new process instance
+		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
+				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
+		
+		assertThat(processInstance).isStarted();
+		assertThat(processInstance).isWaitingAt("outOfStock");
+		complete(task(processInstance));
+		// Complete the request reorder task reach the order failed end event
+		complete(task(processInstance));
+		// Check that the end event has been reached
+		assertThat(processInstance).isEnded();
+	}
+	
+	@Test
+	@Deployment(resources = {"orderProcess.bpmn"})
+	public void orderErrorEnd (){
+		
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put("orderResult", "error");
+		variables.put("shouldReorder", false);
+		// Given we create a new process instance
+		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
+				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
+		
+		assertThat(processInstance).isStarted();
+		assertThat(processInstance).isWaitingAt("orderError");
+		// Complete the check order error task
+		complete(task(processInstance));
+		// Complete the request reorder task reach the order error end event
+		complete(task(processInstance));
+		// Check that the end event has been reached
+		assertThat(processInstance).isEnded();
+	}
+	
+	@Test
+	@Deployment(resources = {"orderProcess.bpmn"})
+	public void orderErrorLoopback (){
+		
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put("orderResult", "error");
+		variables.put("shouldReorder", true);
+		// Given we create a new process instance
+		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
+				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
+		
+		assertThat(processInstance).isStarted();
+		assertThat(processInstance).isWaitingAt("orderError");
+		// Complete the check order error task
+		complete(task(processInstance));
+		// Complete the request reorder task reach the enter order task
+		complete(task(processInstance));
+		// Check that the token has returned to enter order
+		assertThat(processInstance).isWaitingAt("EnterOrderTask");
+	}
 
 }

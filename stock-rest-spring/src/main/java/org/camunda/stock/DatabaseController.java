@@ -79,17 +79,17 @@ public class DatabaseController {
 		return resultList;
 	}
 		
-	public Response restock (String itemName, Integer quantity) throws SQLException {
+	public Response restock (orderItem item) throws SQLException {
 		Response response = new Response();
-		response.setMessage("Order quantity error: Quantity " + quantity + " must be greater than 0");
-		if (quantity < 1) {
+		response.setMessage("Order quantity error: Quantity " + item.getOrderQuantity() + " must be greater than 0");
+		if (item.getOrderQuantity() < 1) {
 			return response;
 		}
 		PreparedStatement updt = connection.prepareStatement("update fish set quantity = quantity + ? where name = ?");
-		updt.setInt(1, quantity);
-		updt.setString(2, itemName);
+		updt.setInt(1, item.getOrderQuantity());
+		updt.setString(2, item.getName());
 		updt.executeUpdate();
-		response.setMessage(quantity + " new stock ordered for " + itemName);
+		response.setMessage(item.getOrderQuantity() + " new stock ordered for " + item.getName());
 		return response;
 	}
 		

@@ -33,5 +33,21 @@ public class stockController {
 	public Response newOrder (@RequestBody orderItem order) throws SQLException {
 		return stockData.newOrder(order);
 	}
+	
+	@PostMapping(value = "price", consumes = "application/json")
+	public Response getPrice (@RequestBody stockItem item) throws SQLException{
+		String statement = "select price from fish where name = '" + item.getName() + "'";
+		ArrayList<Object> data = (stockData.read(statement));
+		Response response = new Response();
+		if  (data.isEmpty()) {
+			response.setMessage("Item name error: " + "no item with name " + item.getName());
+			response.setResult("failure");
+			return response;
+		}
+		String price = (String) data.get(0);
+		response.setMessage(price);
+		response.setResult("success");
+	    return response;
+	}
 
 }

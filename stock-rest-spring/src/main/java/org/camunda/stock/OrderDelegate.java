@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestOperations;
 
 @Service
-public class RestDelegate implements JavaDelegate {
+public class OrderDelegate implements JavaDelegate {
 
     RestOperations restTemplate;
 
-    public RestDelegate(RestTemplateBuilder builder) {
+    public OrderDelegate(RestTemplateBuilder builder) {
         this.restTemplate = builder.build();
     }
     

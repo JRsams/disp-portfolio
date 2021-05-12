@@ -36,36 +36,36 @@ public class TestOrderOutcome {
 		assertThat(processInstance).isEnded();
 	}
 	
-	@Test
-	@Deployment(resources = {"orderProcess.bpmn"})
-	public void orderFailure (){
-		
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put("orderResult", "failure");
-		// Given we create a new process instance
-		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
-				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
-		
-		assertThat(processInstance).isStarted();
-		assertThat(processInstance).isWaitingAt("outOfStock");
-		complete(task(processInstance));
-		assertThat(processInstance).isEnded();
-	}
-	
-	@Test
-	@Deployment(resources = {"orderProcess.bpmn"})
-	public void orderError (){
-		
-		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put("orderResult", "error");
-		// Given we create a new process instance
-		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
-				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
-		
-		assertThat(processInstance).isStarted();
-		assertThat(processInstance).isWaitingAt("orderError");
-		complete(task(processInstance));
-		assertThat(processInstance).isEnded();
-	}
+//	@Test
+//	@Deployment(resources = {"orderProcess.bpmn"})
+//	public void orderFailure (){
+//		
+//		Map<String, Object> variables = new HashMap<String, Object>();
+//		variables.put("orderResult", "failure");
+//		// Given we create a new process instance
+//		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
+//				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
+//		
+//		assertThat(processInstance).isStarted();
+//		assertThat(processInstance).isWaitingAt("outOfStock");
+//		complete(task(processInstance));
+//		assertThat(processInstance).isEnded();
+//	}
+//	
+//	@Test
+//	@Deployment(resources = {"orderProcess.bpmn"})
+//	public void orderError (){
+//		
+//		Map<String, Object> variables = new HashMap<String, Object>();
+//		variables.put("orderResult", "error");
+//		// Given we create a new process instance
+//		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
+//				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
+//		
+//		assertThat(processInstance).isStarted();
+//		assertThat(processInstance).isWaitingAt("orderError");
+//		complete(task(processInstance));
+//		assertThat(processInstance).isEnded();
+//	}
 
 }

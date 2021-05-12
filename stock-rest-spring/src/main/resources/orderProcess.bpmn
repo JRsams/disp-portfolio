@@ -9,7 +9,7 @@
     <bpmn:startEvent id="StartedStartEvent" name="Started">
       <bpmn:outgoing>Flow_10zc93f</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:serviceTask id="CallRESTServiceTask" name="Call REST Service" camunda:delegateExpression="${restDelegate}">
+    <bpmn:serviceTask id="CallRESTServiceTask" name="Call REST Service" camunda:delegateExpression="${orderDelegate}">
       <bpmn:incoming>Flow_04ixq65</bpmn:incoming>
       <bpmn:outgoing>Flow_0yz14pn</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -21,9 +21,11 @@
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_10zc93f</bpmn:incoming>
+      <bpmn:incoming>Flow_1dro2v5</bpmn:incoming>
+      <bpmn:incoming>shouldReorder</bpmn:incoming>
       <bpmn:outgoing>Flow_04ixq65</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="orderStatus" name="Order result">
+    <bpmn:exclusiveGateway id="orderStatus">
       <bpmn:incoming>Flow_0yz14pn</bpmn:incoming>
       <bpmn:outgoing>resultTrue</bpmn:outgoing>
       <bpmn:outgoing>resultFalse</bpmn:outgoing>
@@ -45,28 +47,58 @@
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>resultFalse</bpmn:incoming>
-      <bpmn:outgoing>Flow_1gqgu08</bpmn:outgoing>
+      <bpmn:outgoing>Flow_172irdb</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:exclusiveGateway id="Gateway_1iweq7j">
-      <bpmn:incoming>Flow_1gqgu08</bpmn:incoming>
-      <bpmn:incoming>Flow_0kgr0wp</bpmn:incoming>
-      <bpmn:outgoing>Flow_1ykfhx8</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="Event_1h2owgw" name="Order complete">
-      <bpmn:incoming>Flow_1ykfhx8</bpmn:incoming>
-    </bpmn:endEvent>
     <bpmn:userTask id="orderError" name="Order error">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="orderMessage" label="Order message" type="string" />
-          <camunda:formField id="orderResult" label="order result" type="boolean" />
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:incoming>resultNull</bpmn:incoming>
       <bpmn:outgoing>Flow_01tpjav</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:endEvent id="Event_17vnhbw" name="Order failed">
+    <bpmn:userTask id="requestRestcok" name="Request restock">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="shouldRestock" label="Restock Item?" type="boolean" />
+          <camunda:formField id="item" label="Item name" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_172irdb</bpmn:incoming>
+      <bpmn:outgoing>Flow_07yujbv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="restockGateway">
+      <bpmn:incoming>Flow_07yujbv</bpmn:incoming>
+      <bpmn:outgoing>notShouldRestock</bpmn:outgoing>
+      <bpmn:outgoing>shouldRestock</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="restockItem" name="Restock">
+      <bpmn:incoming>shouldRestock</bpmn:incoming>
+      <bpmn:outgoing>Flow_1dro2v5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Event_1h2owgw" name="Order complete">
+      <bpmn:incoming>Flow_0kgr0wp</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="Event_19h1fp0" name="Order cancelled">
+      <bpmn:incoming>notShouldRestock</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="requestReorder" name="Request reorder">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="shouldReorder" label="Retry ordering?" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_01tpjav</bpmn:incoming>
+      <bpmn:outgoing>Flow_0vpnx9r</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="reorderGateway">
+      <bpmn:incoming>Flow_0vpnx9r</bpmn:incoming>
+      <bpmn:outgoing>notShouldReorder</bpmn:outgoing>
+      <bpmn:outgoing>shouldReorder</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="Event_17vnhbw" name="Order failed">
+      <bpmn:incoming>notShouldReorder</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_04ixq65" sourceRef="EnterOrderTask" targetRef="CallRESTServiceTask" />
     <bpmn:sequenceFlow id="Flow_10zc93f" sourceRef="StartedStartEvent" targetRef="EnterOrderTask" />
@@ -80,99 +112,157 @@
     <bpmn:sequenceFlow id="resultTrue" sourceRef="orderStatus" targetRef="orderSuccess">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${orderResult == "succsess"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0kgr0wp" sourceRef="orderSuccess" targetRef="Gateway_1iweq7j" />
-    <bpmn:sequenceFlow id="Flow_1gqgu08" sourceRef="outOfStock" targetRef="Gateway_1iweq7j" />
-    <bpmn:sequenceFlow id="Flow_1ykfhx8" sourceRef="Gateway_1iweq7j" targetRef="Event_1h2owgw" />
-    <bpmn:sequenceFlow id="Flow_01tpjav" sourceRef="orderError" targetRef="Event_17vnhbw" />
+    <bpmn:sequenceFlow id="Flow_0kgr0wp" sourceRef="orderSuccess" targetRef="Event_1h2owgw" />
+    <bpmn:sequenceFlow id="Flow_01tpjav" sourceRef="orderError" targetRef="requestReorder" />
+    <bpmn:sequenceFlow id="Flow_172irdb" sourceRef="outOfStock" targetRef="requestRestcok" />
+    <bpmn:sequenceFlow id="Flow_1dro2v5" sourceRef="restockItem" targetRef="EnterOrderTask" />
+    <bpmn:sequenceFlow id="Flow_07yujbv" sourceRef="requestRestcok" targetRef="restockGateway" />
+    <bpmn:sequenceFlow id="notShouldRestock" sourceRef="restockGateway" targetRef="Event_19h1fp0">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{not shouldRestock}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="shouldRestock" sourceRef="restockGateway" targetRef="restockItem">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{shouldRestock}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0vpnx9r" sourceRef="requestReorder" targetRef="reorderGateway" />
+    <bpmn:sequenceFlow id="shouldReorder" sourceRef="reorderGateway" targetRef="EnterOrderTask">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{shouldReorder}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="notShouldReorder" sourceRef="reorderGateway" targetRef="Event_17vnhbw">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{not shouldReorder}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1t04b0s">
       <bpmndi:BPMNShape id="Participant_04izyej_di" bpmnElement="Participant_04izyej" isHorizontal="true">
-        <dc:Bounds x="160" y="80" width="1140" height="430" />
+        <dc:Bounds x="160" y="112" width="1370" height="708" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_04ixq65_di" bpmnElement="Flow_04ixq65">
-        <di:waypoint x="450" y="290" />
-        <di:waypoint x="510" y="290" />
+        <di:waypoint x="440" y="460" />
+        <di:waypoint x="500" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_10zc93f_di" bpmnElement="Flow_10zc93f">
-        <di:waypoint x="278" y="290" />
-        <di:waypoint x="350" y="290" />
+        <di:waypoint x="268" y="460" />
+        <di:waypoint x="340" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0yz14pn_di" bpmnElement="Flow_0yz14pn">
-        <di:waypoint x="610" y="290" />
-        <di:waypoint x="715" y="290" />
+        <di:waypoint x="600" y="460" />
+        <di:waypoint x="705" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1ga04q6_di" bpmnElement="resultNull">
-        <di:waypoint x="740" y="315" />
-        <di:waypoint x="740" y="430" />
-        <di:waypoint x="830" y="430" />
+        <di:waypoint x="730" y="485" />
+        <di:waypoint x="730" y="600" />
+        <di:waypoint x="820" y="600" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0l1ctku_di" bpmnElement="resultFalse">
-        <di:waypoint x="740" y="265" />
-        <di:waypoint x="740" y="170" />
-        <di:waypoint x="830" y="170" />
+        <di:waypoint x="730" y="435" />
+        <di:waypoint x="730" y="340" />
+        <di:waypoint x="820" y="340" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0rvptrf_di" bpmnElement="resultTrue">
-        <di:waypoint x="765" y="290" />
-        <di:waypoint x="830" y="290" />
+        <di:waypoint x="755" y="460" />
+        <di:waypoint x="820" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0kgr0wp_di" bpmnElement="Flow_0kgr0wp">
-        <di:waypoint x="930" y="290" />
-        <di:waypoint x="985" y="290" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1gqgu08_di" bpmnElement="Flow_1gqgu08">
-        <di:waypoint x="930" y="170" />
-        <di:waypoint x="1010" y="170" />
-        <di:waypoint x="1010" y="265" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ykfhx8_di" bpmnElement="Flow_1ykfhx8">
-        <di:waypoint x="1035" y="290" />
-        <di:waypoint x="1092" y="290" />
+        <di:waypoint x="920" y="460" />
+        <di:waypoint x="1192" y="460" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_01tpjav_di" bpmnElement="Flow_01tpjav">
-        <di:waypoint x="930" y="430" />
-        <di:waypoint x="1092" y="430" />
+        <di:waypoint x="920" y="600" />
+        <di:waypoint x="990" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_172irdb_di" bpmnElement="Flow_172irdb">
+        <di:waypoint x="920" y="340" />
+        <di:waypoint x="990" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1dro2v5_di" bpmnElement="Flow_1dro2v5">
+        <di:waypoint x="1160" y="200" />
+        <di:waypoint x="390" y="200" />
+        <di:waypoint x="390" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07yujbv_di" bpmnElement="Flow_07yujbv">
+        <di:waypoint x="1090" y="340" />
+        <di:waypoint x="1185" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jlhmmy_di" bpmnElement="notShouldRestock">
+        <di:waypoint x="1235" y="340" />
+        <di:waypoint x="1382" y="340" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1317tbr_di" bpmnElement="shouldRestock">
+        <di:waypoint x="1210" y="315" />
+        <di:waypoint x="1210" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vpnx9r_di" bpmnElement="Flow_0vpnx9r">
+        <di:waypoint x="1090" y="600" />
+        <di:waypoint x="1185" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ydx5b0_di" bpmnElement="shouldReorder">
+        <di:waypoint x="1210" y="625" />
+        <di:waypoint x="1210" y="720" />
+        <di:waypoint x="390" y="720" />
+        <di:waypoint x="390" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zqvlsj_di" bpmnElement="notShouldReorder">
+        <di:waypoint x="1235" y="600" />
+        <di:waypoint x="1382" y="600" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_0evdtau_di" bpmnElement="StartedStartEvent">
-        <dc:Bounds x="242" y="272" width="36" height="36" />
+        <dc:Bounds x="232" y="442" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="242" y="315" width="36" height="14" />
+          <dc:Bounds x="232" y="485" width="36" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0o6x31i_di" bpmnElement="CallRESTServiceTask">
-        <dc:Bounds x="510" y="250" width="100" height="80" />
+        <dc:Bounds x="500" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1tm3hfr_di" bpmnElement="EnterOrderTask">
-        <dc:Bounds x="350" y="250" width="100" height="80" />
+        <dc:Bounds x="340" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0euusld_di" bpmnElement="orderStatus" isMarkerVisible="true">
-        <dc:Bounds x="715" y="265" width="50" height="50" />
+        <dc:Bounds x="705" y="435" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="671" y="343" width="59" height="14" />
+          <dc:Bounds x="661" y="513" width="59" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1ytbe1m_di" bpmnElement="orderSuccess">
-        <dc:Bounds x="830" y="250" width="100" height="80" />
+        <dc:Bounds x="820" y="420" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1alcfxs_di" bpmnElement="outOfStock">
-        <dc:Bounds x="830" y="130" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_1iweq7j_di" bpmnElement="Gateway_1iweq7j" isMarkerVisible="true">
-        <dc:Bounds x="985" y="265" width="50" height="50" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_1h2owgw_di" bpmnElement="Event_1h2owgw">
-        <dc:Bounds x="1092" y="272" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1072" y="315" width="76" height="14" />
-        </bpmndi:BPMNLabel>
+        <dc:Bounds x="820" y="300" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1kf8j6o_di" bpmnElement="orderError">
-        <dc:Bounds x="830" y="390" width="100" height="80" />
+        <dc:Bounds x="820" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0dovoe9_di" bpmnElement="requestRestcok">
+        <dc:Bounds x="990" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_06dodlu_di" bpmnElement="restockGateway" isMarkerVisible="true">
+        <dc:Bounds x="1185" y="315" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1yntzlp_di" bpmnElement="restockItem">
+        <dc:Bounds x="1160" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1h2owgw_di" bpmnElement="Event_1h2owgw">
+        <dc:Bounds x="1192" y="442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1172" y="485" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19h1fp0_di" bpmnElement="Event_19h1fp0">
+        <dc:Bounds x="1382" y="322" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1361" y="365" width="78" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nnw9t2_di" bpmnElement="requestReorder">
+        <dc:Bounds x="990" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1hlw4tm_di" bpmnElement="reorderGateway" isMarkerVisible="true">
+        <dc:Bounds x="1185" y="575" width="50" height="50" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_17vnhbw_di" bpmnElement="Event_17vnhbw">
-        <dc:Bounds x="1092" y="412" width="36" height="36" />
+        <dc:Bounds x="1382" y="582" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1081" y="455" width="58" height="14" />
+          <dc:Bounds x="1371" y="625" width="58" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

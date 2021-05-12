@@ -79,23 +79,25 @@ public class DatabaseController {
 		return resultList;
 	}
 		
-	public Response restock (String itemName, Integer quantity) throws SQLException {
+	public Response restock (Order order) throws SQLException {
 		Response response = new Response();
-		response.setMessage("Order quantity error: Quantity " + quantity + " must be greater than 0");
-		if (quantity < 1) {
+		if (order.getQuantity() < 1) {
+			response.setMessage("Order quantity error: Quantity " + order.getQuantity() + " must be greater than 0");
+			response.setResult("error");
 			return response;
 		}
 		PreparedStatement updt = connection.prepareStatement("update fish set quantity = quantity + ? where name = ?");
-		updt.setInt(1, quantity);
-		updt.setString(2, itemName);
+		updt.setInt(1, order.getQuantity());
+		updt.setString(2, order.getName());
 		updt.executeUpdate();
-		response.setMessage(quantity + " new stock ordered for " + itemName);
+		response.setMessage(order.getQuantity() + " new stock ordered for " + order.getName());
+		response.setResult("success");
 		return response;
 	}
 		
-	public Response newOrder (orderItem order) throws SQLException {
+	public Response newOrder (Order order) throws SQLException {
 		Response response = new Response();
-		if (order.getOrderQuantity() < 1) {
+		if (order.getQuantity() < 1) {
 			response.setMessage("Order quantity error: Quantity must be at least 1");
 			response.setResult("error");
 			return response;
@@ -115,16 +117,16 @@ public class DatabaseController {
 			response.setResult("failure");
 			return response;
 		}
-		if (order.getOrderQuantity() > currentQuantity) {
-			response.setMessage("Order size error: Stock order of " + order.getOrderQuantity() + " exceeds stock level for " + order.getName() + " (" + currentQuantity +")");
+		if (order.getQuantity() > currentQuantity) {
+			response.setMessage("Order size error: Stock order of " + order.getQuantity() + " exceeds stock level for " + order.getName() + " (" + currentQuantity +")");
 			response.setResult("error");
 			return response;
 		}
 		PreparedStatement updt = connection.prepareStatement("update fish set quantity = quantity - ? where name = ?");
-		updt.setInt(1, order.getOrderQuantity());
+		updt.setInt(1, order.getQuantity());
 		updt.setString(2, order.getName());
 		updt.executeUpdate();
-		response.setMessage("New Order for " + order.getOrderQuantity() + " x " + order.getName());
+		response.setMessage("New Order for " + order.getQuantity() + " x " + order.getName());
 		response.setResult("succsess");
 		return response;
 		

@@ -25,13 +25,29 @@ public class stockController {
 	}
 
 	@PostMapping(value = "restock", consumes = "application/json")
-	public Response restockItem (@RequestBody stockItem item) throws SQLException {
-		return stockData.restock(item.getName(), item.getQuantity()); 
+	public Response restockItem (@RequestBody Order item) throws SQLException {
+		return stockData.restock(item); 
 	}
 
 	@PostMapping(value = "order", consumes = "application/json")
-	public Response newOrder (@RequestBody orderItem order) throws SQLException {
+	public Response newOrder (@RequestBody Order order) throws SQLException {
 		return stockData.newOrder(order);
+	}
+	
+	@PostMapping(value = "price", consumes = "application/json")
+	public Response getPrice (@RequestBody stockItem item) throws SQLException{
+		String statement = "select price from fish where name = '" + item.getName() + "'";
+		ArrayList<Object> data = (stockData.read(statement));
+		Response response = new Response();
+		if  (data.isEmpty()) {
+			response.setMessage("Item name error: " + "no item with name " + item.getName());
+			response.setResult("failure");
+			return response;
+		}
+		String price = (String) data.get(0);
+		response.setMessage(price);
+		response.setResult("success");
+	    return response;
 	}
 
 }

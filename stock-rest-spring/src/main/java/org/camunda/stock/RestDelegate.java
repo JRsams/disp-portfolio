@@ -14,7 +14,7 @@ public class RestDelegate implements JavaDelegate {
     public RestDelegate(RestTemplateBuilder builder) {
         this.restTemplate = builder.build();
     }
-
+    
 	@Override
     public void execute(DelegateExecution execution) throws Exception {
 

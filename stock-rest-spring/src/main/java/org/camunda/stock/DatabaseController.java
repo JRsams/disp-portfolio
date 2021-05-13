@@ -127,7 +127,7 @@ public class DatabaseController {
 		updt.setString(2, order.getName());
 		updt.executeUpdate();
 		response.setMessage("New Order for " + order.getQuantity() + " x " + order.getName());
-		response.setResult("succsess");
+		response.setResult("success");
 		return response;
 		
 	}

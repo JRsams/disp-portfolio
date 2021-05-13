@@ -24,7 +24,7 @@ public class TestProcessStartWithVariabes {
 		// Given we create a new process instance
 		ProcessInstance processInstance = runtimeService().startProcessInstanceByKey(
 						"orderProcess",
-						withVariables("item", "trout", "quantity", 1, "orderResult", "succsess")); 
+						withVariables("item", "trout", "quantity", 1, "orderResult", "success")); 
 		assertThat(processInstance).isStarted();
 		// Then it should be active
 		assertThat(processInstance).isActive();

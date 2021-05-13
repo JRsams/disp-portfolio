@@ -12,8 +12,8 @@ class TestDatabaseConnection {
 
 	@Test
 	void createConnection() throws SQLException {
-		DatabaseController testDB = new DatabaseController("localhost:3306","stock","camundabpm","disp20", null);
-		Connection connection = (Connection) testDB.openConnection();
+		DatabaseController testConnector = new DatabaseController("localhost:3306","stock","camundabpm","disp20", null);
+		Connection connection = (Connection) testConnector.openConnection();
 		assertNotNull (connection);
 		if (connection != null) connection.close();
 	}

@@ -21,7 +21,7 @@
       <bpmn:incoming>resultTrue</bpmn:incoming>
       <bpmn:outgoing>Flow_0kgr0wp</bpmn:outgoing>
     </bpmn:userTask>
-    <bpmn:userTask id="outOfStock" name="Review stock level problem">
+    <bpmn:userTask id="insufficientStock" name="Review stock level problem">
       <bpmn:extensionElements>
         <camunda:formData>
           <camunda:formField id="orderMessage" label="Order message" type="string" />
@@ -107,14 +107,14 @@
     <bpmn:sequenceFlow id="resultNull" sourceRef="orderStatus" targetRef="orderError">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${orderResult == "error"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="resultFalse" sourceRef="orderStatus" targetRef="outOfStock">
+    <bpmn:sequenceFlow id="resultFalse" sourceRef="orderStatus" targetRef="insufficientStock">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${orderResult == "failure"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="resultTrue" sourceRef="orderStatus" targetRef="orderSuccess">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${orderResult == "succsess"}</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${orderResult == "success"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0kgr0wp" sourceRef="orderSuccess" targetRef="calculateTotal" />
-    <bpmn:sequenceFlow id="Flow_172irdb" sourceRef="outOfStock" targetRef="requestRestcok" />
+    <bpmn:sequenceFlow id="Flow_172irdb" sourceRef="insufficientStock" targetRef="requestRestcok" />
     <bpmn:sequenceFlow id="Flow_1uze1pk" sourceRef="orderTotal" targetRef="Event_1h2owgw" />
     <bpmn:sequenceFlow id="notShouldReorder" sourceRef="reorderGateway" targetRef="Event_17vnhbw">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">#{not shouldReorder}</bpmn:conditionExpression>
@@ -255,7 +255,7 @@
       <bpmndi:BPMNShape id="Activity_1ytbe1m_di" bpmnElement="orderSuccess">
         <dc:Bounds x="860" y="500" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1alcfxs_di" bpmnElement="outOfStock">
+      <bpmndi:BPMNShape id="Activity_1alcfxs_di" bpmnElement="insufficientStock">
         <dc:Bounds x="860" y="380" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1h2owgw_di" bpmnElement="Event_1h2owgw">

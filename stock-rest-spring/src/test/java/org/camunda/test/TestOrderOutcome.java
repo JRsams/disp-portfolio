@@ -25,7 +25,7 @@ public class TestOrderOutcome {
 	public void orderSuccessful (){
 		
 		Map<String, Object> variables = new HashMap<String, Object>();
-		variables.put("orderResult", "succsess");
+		variables.put("orderResult", "success");
 		// Given we create a new process instance
 		ProcessInstance processInstance = runtimeService().createProcessInstanceByKey(
 				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
@@ -46,7 +46,7 @@ public class TestOrderOutcome {
 				"orderProcess").startAfterActivity("CallRESTServiceTask").setVariables(variables).execute();
 		
 		assertThat(processInstance).isStarted();
-		assertThat(processInstance).isWaitingAt("outOfStock");
+		assertThat(processInstance).isWaitingAt("insufficientStock");
 		complete(task(processInstance));
 		// Complete the request reorder task reach the order failed end event
 		complete(task(processInstance));

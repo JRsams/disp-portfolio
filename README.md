@@ -21,6 +21,8 @@ From Eclipse IDE:
 
 stock-rest-spring -> **Run As** -> **Maven Install**
 
+![alt text](https://gitlab.uwe.ac.uk/j2-sams/disp-portfolio/-/blob/master/stock-rest-spring/resources/images/orderProcess.png)
+
 **Run the Application**
 
 CamundaApplication.java -> **Run As** -> **Java Application**

@@ -118,8 +118,8 @@ public class DatabaseController {
 			return response;
 		}
 		if (order.getQuantity() > currentQuantity) {
-			response.setMessage("Order size error: Stock order of " + order.getQuantity() + " exceeds stock level for " + order.getName() + " (" + currentQuantity +")");
-			response.setResult("error");
+			response.setMessage("Stock order of " + order.getQuantity() + " exceeds stock level for " + order.getName() + " (" + currentQuantity +")");
+			response.setResult("failure");
 			return response;
 		}
 		PreparedStatement updt = connection.prepareStatement("update fish set quantity = quantity - ? where name = ?");
